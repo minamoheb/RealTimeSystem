@@ -1,0 +1,11 @@
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Thresholds</p>
+    <h1>Alerts</h1>
+  </div>
+  <button type="button" class="ghost" (click)="toggleOpen()">{{ openOnly() ? 'Show all' : 'Open only' }}</button>
+</div>
+@if (error()) { <p class="form-error">{{ error() }}</p> }
+<article class="panel">
+  <app-alert-list [alerts]="alerts()" (acknowledge)="ack($event)" />
+</article>

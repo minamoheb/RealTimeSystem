@@ -1,0 +1,19 @@
+{
+  "/api": {
+    "target": "http://localhost:44305",
+    "secure": false
+  },
+  "/hubs": {
+    "target": "http://localhost:44305",
+    "secure": false,
+    "ws": true
+  },
+  "/health": {
+    "target": "http://localhost:44305",
+    "secure": false
+  },
+  "/hangfire": {
+    "target": "http://localhost:44305",
+    "secure": false
+  }
+}

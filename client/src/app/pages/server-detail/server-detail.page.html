@@ -1,0 +1,32 @@
+<a class="back" routerLink="/dashboard">Back to fleet</a>
+@if (server(); as host) {
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">{{ host.environmentName }} · {{ host.hostName }}</p>
+      <h1>{{ host.name }}</h1>
+      <p>{{ host.description }}</p>
+    </div>
+    <div class="actions">
+      <app-status-pill [status]="host.status" />
+      @if (auth.isAdmin()) {
+        <a class="button ghost" [routerLink]="['/servers', host.id, 'edit']">Update</a>
+        <button type="button" class="ghost" (click)="remove()">Remove</button>
+      }
+    </div>
+  </div>
+  <section class="chart-grid">
+    <article class="panel chart-panel"><h2>CPU</h2><app-metric-chart [labels]="labels()" [series]="series('cpuPercent', '#d6ff4a')" /></article>
+    <article class="panel chart-panel"><h2>Memory</h2><app-metric-chart [labels]="labels()" [series]="series('memoryPercent', '#7dffa1')" /></article>
+    <article class="panel chart-panel"><h2>Disk</h2><app-metric-chart [labels]="labels()" [series]="series('diskPercent', '#f0b429')" /></article>
+    <article class="panel chart-panel"><h2>Response</h2><app-metric-chart [labels]="labels()" [series]="series('responseTimeMs', '#ff5d4a')" /></article>
+  </section>
+  <p class="muted">Latest CPU {{ percent(host.cpuPercent) }} · samples in view {{ history().length }}</p>
+  <article class="panel">
+    <h2>Alerts</h2>
+    <app-alert-list [alerts]="alerts()" (acknowledge)="ack($event)" />
+  </article>
+} @else if (error()) {
+  <p class="form-error">{{ error() }}</p>
+} @else {
+  <p class="muted">Loading history…</p>
+}

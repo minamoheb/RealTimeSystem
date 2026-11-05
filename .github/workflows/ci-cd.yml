@@ -1,0 +1,108 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22"
+  REGISTRY: ghcr.io
+  IMAGE_BACKEND: ${{ github.repository }}-api
+  IMAGE_FRONTEND: ${{ github.repository }}-web
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore RealTimeSystem.slnx
+
+      - name: Build
+        run: dotnet build RealTimeSystem.slnx --configuration Release --no-restore
+
+      - name: Test backend
+        run: |
+          dotnet test tests/RealTimeSystem.Domain.Tests/RealTimeSystem.Domain.Tests.csproj --configuration Release --no-build
+          dotnet test tests/RealTimeSystem.Application.Tests/RealTimeSystem.Application.Tests.csproj --configuration Release --no-build
+          dotnet test tests/RealTimeSystem.WebAPI.Tests/RealTimeSystem.WebAPI.Tests.csproj --configuration Release --no-build
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Test frontend
+        run: xvfb-run -a npm test -- --watch=false --browsers=ChromeHeadless
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/RealTimeSystem.WebAPI/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_BACKEND }}:${{ github.sha }}
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_FRONTEND }}:${{ github.sha }}
+
+      - name: Deployment guidance (documented)
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Images are published to GHCR."
+          echo "Deploy by pulling the new tags into your target environment and running docker compose up -d."
+          echo "Detailed deployment instructions are in DEPLOYMENT.md."

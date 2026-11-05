@@ -1,0 +1,41 @@
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Users</h1>
+  </div>
+</div>
+<section class="split">
+  <form class="panel stack" [formGroup]="form" (ngSubmit)="create()">
+    <h2>Invite operator</h2>
+    <label>Name <input formControlName="fullName" /></label>
+    <label>Email <input type="email" formControlName="email" /></label>
+    <label>Password <input type="password" formControlName="password" /></label>
+    <label>Role
+      <select formControlName="role">
+        <option value="User">User</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </label>
+    @if (form.invalid && form.touched) { <small>Name, email, and an 8 character password are required.</small> }
+    @if (error()) { <p class="form-error">{{ error() }}</p> }
+    <button type="submit" [disabled]="busy()">Create user</button>
+  </form>
+  <article class="panel">
+    <table>
+      <thead><tr><th>Name</th><th>Roles</th><th></th></tr></thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ user.fullName }}<br /><span class="muted">{{ user.email }}</span></td>
+            <td>{{ user.roles.join(', ') }}{{ user.isActive ? '' : ' · inactive' }}</td>
+            <td>
+              @if (user.isActive) {
+                <button type="button" class="ghost" (click)="deactivate(user)">Deactivate</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </article>
+</section>

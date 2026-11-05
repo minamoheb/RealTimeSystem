@@ -1,0 +1,15 @@
+**/.vs
+**/bin
+**/obj
+**/.git
+**/node_modules
+**/dist
+**/.angular
+**/.tools
+**/App_Data
+**/logs
+**/*.db
+Real-TimeSystem_API
+Real-TimeSystem_UI
+client
+tests

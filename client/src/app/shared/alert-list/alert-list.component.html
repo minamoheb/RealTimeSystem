@@ -1,0 +1,18 @@
+<ul class="alert-list">
+  @for (alert of alerts(); track alert.id) {
+    <li [attr.data-severity]="alert.severity">
+      <div>
+        <strong>{{ alert.serverName }}</strong>
+        <span>{{ alert.metricName }} · {{ alert.severity }}</span>
+        <p>{{ alert.message }}</p>
+      </div>
+      @if (!alert.isAcknowledged) {
+        <button type="button" (click)="acknowledge.emit(alert.id)">Ack</button>
+      } @else {
+        <em>Cleared</em>
+      }
+    </li>
+  } @empty {
+    <li class="empty">No alerts in this view.</li>
+  }
+</ul>

@@ -1,0 +1,18 @@
+<a class="back" routerLink="/dashboard">Back to fleet</a>
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Server</p>
+    <h1>{{ serverId() ? 'Update server' : 'Add server' }}</h1>
+  </div>
+</div>
+<form class="panel stack" [formGroup]="form" (ngSubmit)="save()">
+  <label>Name <input formControlName="name" /></label>
+  <label>Host name <input formControlName="hostName" /></label>
+  <label>Environment <input formControlName="environmentName" /></label>
+  <label>Description <input formControlName="description" /></label>
+  @if (form.invalid && form.touched) {
+    <small>Name, host, and environment are required.</small>
+  }
+  @if (error()) { <p class="form-error">{{ error() }}</p> }
+  <button type="submit" [disabled]="busy()">{{ busy() ? 'Saving…' : (serverId() ? 'Save changes' : 'Add server') }}</button>
+</form>

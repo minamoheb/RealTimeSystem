@@ -1,0 +1,9 @@
+global using FluentValidation;
+global using Microsoft.EntityFrameworkCore;
+global using RealTimeSystem.Application.Common.Exceptions;
+global using RealTimeSystem.Application.Common.Interfaces;
+global using RealTimeSystem.Application.Common.Mediator;
+global using RealTimeSystem.Application.Common.Dtos;
+global using RealTimeSystem.Domain.Common;
+global using RealTimeSystem.Domain.Entities;
+global using RealTimeSystem.Domain.Exceptions;

@@ -1,0 +1,26 @@
+<main class="login">
+  <section>
+    <p class="eyebrow">Real-time operations</p>
+    <h1>See every host before it pages you.</h1>
+    <p>CPU, memory, disk, and latency from the fleet, with alerts and reports as the samples arrive.</p>
+  </section>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <h2>Sign in</h2>
+    <label>
+      Email
+      <input type="email" formControlName="email" autocomplete="username" />
+    </label>
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Enter a valid email address.</small>
+    }
+    <label>
+      Password
+      <input type="password" formControlName="password" autocomplete="current-password" />
+    </label>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small>Password must be at least 8 characters.</small>
+    }
+    @if (error()) { <p class="form-error">{{ error() }}</p> }
+    <button type="submit" [disabled]="busy()">{{ busy() ? 'Signing in…' : 'Enter dashboard' }}</button>
+  </form>
+</main>

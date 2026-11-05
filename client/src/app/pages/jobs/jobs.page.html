@@ -1,0 +1,54 @@
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Hangfire</p>
+    <h1>Background jobs</h1>
+  </div>
+  <button type="button" (click)="openHangfire()">Open Hangfire</button>
+</div>
+@if (overview(); as jobs) {
+  <section class="kpi-grid">
+    <app-kpi-card label="Enqueued" [value]="jobs.enqueued" />
+    <app-kpi-card label="Processing" [value]="jobs.processing" />
+    <app-kpi-card label="Scheduled" [value]="jobs.scheduled" />
+    <app-kpi-card label="Failed" [value]="jobs.failed" />
+  </section>
+  <article class="panel">
+    <h2>Recent</h2>
+    <table>
+      <thead><tr><th>Job</th><th>State</th><th>When</th><th></th></tr></thead>
+      <tbody>
+        @for (job of jobs.recent; track job.id) {
+          <tr>
+            <td>{{ job.name }}</td>
+            <td>{{ job.state }}</td>
+            <td>{{ job.createdAtUtc ? (job.createdAtUtc | date:'short') : '—' }}</td>
+            <td>
+              @if (auth.isAdmin() && job.state === 'Failed') {
+                <button type="button" class="ghost" (click)="retry(job.id)">Retry</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4">No Hangfire history yet. Collection runs every minute.</td></tr>
+        }
+      </tbody>
+    </table>
+  </article>
+}
+@if (auth.isAdmin()) {
+  <form class="panel stack" [formGroup]="form" (ngSubmit)="schedule()">
+    <h2>Schedule maintenance</h2>
+    <label>Server
+      <select formControlName="serverId">
+        @for (server of servers(); track server.id) {
+          <option [ngValue]="server.id">{{ server.name }}</option>
+        }
+      </select>
+    </label>
+    <label>Reason <input formControlName="reason" /></label>
+    <label>Delay (minutes) <input type="number" formControlName="delayMinutes" min="1" max="1440" /></label>
+    @if (message()) { <p class="hint">{{ message() }}</p> }
+    @if (error()) { <p class="form-error">{{ error() }}</p> }
+    <button type="submit">Schedule delayed job</button>
+  </form>
+}

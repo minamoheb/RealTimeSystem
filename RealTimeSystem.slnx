@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RealTimeSystem.Application/RealTimeSystem.Application.csproj" />
+    <Project Path="src/RealTimeSystem.Domain/RealTimeSystem.Domain.csproj" />
+    <Project Path="src/RealTimeSystem.Infrastructure/RealTimeSystem.Infrastructure.csproj" />
+    <Project Path="src/RealTimeSystem.WebAPI/RealTimeSystem.WebAPI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RealTimeSystem.Application.Tests/RealTimeSystem.Application.Tests.csproj" />
+    <Project Path="tests/RealTimeSystem.Domain.Tests/RealTimeSystem.Domain.Tests.csproj" />
+    <Project Path="tests/RealTimeSystem.WebAPI.Tests/RealTimeSystem.WebAPI.Tests.csproj" />
+  </Folder>
+</Solution>

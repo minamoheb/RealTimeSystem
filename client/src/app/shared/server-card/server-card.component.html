@@ -1,0 +1,16 @@
+<a class="server-card" [routerLink]="['/servers', server().id]">
+  <header>
+    <div>
+      <h3>{{ server().name }}</h3>
+      <p>{{ server().hostName }} · {{ server().environmentName }}</p>
+    </div>
+    <app-status-pill [status]="server().status" />
+  </header>
+  <dl>
+    <div><dt>CPU</dt><dd [attr.data-tone]="tone(server().cpuPercent)">{{ percent(server().cpuPercent) }}</dd></div>
+    <div><dt>Memory</dt><dd [attr.data-tone]="tone(server().memoryPercent)">{{ percent(server().memoryPercent) }}</dd></div>
+    <div><dt>Disk</dt><dd [attr.data-tone]="tone(server().diskPercent, 85, 95)">{{ percent(server().diskPercent) }}</dd></div>
+    <div><dt>Latency</dt><dd [attr.data-tone]="tone(server().responseTimeMs, 400, 800)">{{ number(server().responseTimeMs, ' ms') }}</dd></div>
+  </dl>
+  <footer>{{ server().openAlertCount }} open alerts</footer>
+</a>

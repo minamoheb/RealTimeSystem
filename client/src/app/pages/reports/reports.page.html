@@ -1,0 +1,33 @@
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Analysis</p>
+    <h1>Reports</h1>
+  </div>
+</div>
+<section class="split">
+  <form class="panel stack" [formGroup]="form" (ngSubmit)="generate()">
+    <h2>Generate</h2>
+    <label>Title <input formControlName="title" /></label>
+    @if (form.controls.title.touched && form.controls.title.invalid) { <small>Title is required.</small> }
+    <label>From <input type="datetime-local" formControlName="from" /></label>
+    <label>To <input type="datetime-local" formControlName="to" /></label>
+    @if (error()) { <p class="form-error">{{ error() }}</p> }
+    <button type="submit" [disabled]="busy()">{{ busy() ? 'Queuing…' : 'Queue report' }}</button>
+    <p class="hint">Generation is fire-and-forget. A continuation job writes the summary.</p>
+  </form>
+  <div class="panel">
+    <h2>Library</h2>
+    <table>
+      <thead><tr><th>Title</th><th>Status</th><th>Summary</th></tr></thead>
+      <tbody>
+        @for (report of reports(); track report.id) {
+          <tr>
+            <td>{{ report.title }}<br /><span class="muted">{{ report.requestedByEmail }}</span></td>
+            <td><span class="pill" [attr.data-status]="report.status">{{ report.status }}</span></td>
+            <td>{{ report.summary || report.failureReason || 'Waiting for the worker.' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

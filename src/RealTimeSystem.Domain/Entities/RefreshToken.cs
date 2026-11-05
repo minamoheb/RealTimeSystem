@@ -1,0 +1,21 @@
+namespace RealTimeSystem.Domain.Entities
+{
+    public sealed class RefreshToken : BaseEntity
+    {
+        public long UserId { get; set; }
+
+        public string TokenHash { get; set; } = string.Empty;
+
+        public DateTime ExpiresAtUtc { get; set; }
+
+        public DateTime CreatedAtUtc { get; set; }
+
+        public DateTime? RevokedAtUtc { get; set; }
+
+        public User User { get; set; } = null!;
+
+        public bool IsValid(DateTime utcNow) => RevokedAtUtc is null && ExpiresAtUtc > utcNow;
+
+        public void Revoke(DateTime utcNow) => RevokedAtUtc ??= utcNow;
+    }
+}

@@ -1,0 +1,36 @@
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Fleet</p>
+    <h1>Overview</h1>
+  </div>
+  <div class="actions">
+    <a class="button ghost" routerLink="/alerts">All alerts</a>
+    @if (auth.isAdmin()) {
+      <a class="button" routerLink="/servers/new">Add server</a>
+      <button type="button" (click)="collect()" [disabled]="collecting()">{{ collecting() ? 'Collecting…' : 'Collect sample' }}</button>
+    }
+  </div>
+</div>
+@if (error()) { <p class="form-error">{{ error() }}</p> }
+@if (loading()) { <p class="muted">Loading hosts…</p> }
+<section class="kpi-grid">
+  <app-kpi-card label="Hosts" [value]="store.servers().length" hint="Active monitored servers" />
+  <app-kpi-card label="Degraded" [value]="degraded()" hint="Needs attention" />
+  <app-kpi-card label="Open alerts" [value]="openAlerts()" hint="Unacknowledged" />
+  <app-kpi-card label="Operators" [value]="store.presence().length" [hint]="store.connected() ? 'SignalR connected' : 'Realtime offline'" />
+</section>
+<section class="split">
+  <article class="panel chart-panel">
+    <header><h2>Current CPU</h2></header>
+    <app-metric-chart [kind]="'bar'" [labels]="cpuLabels()" [series]="cpuSeries()" />
+  </article>
+  <article class="panel">
+    <header><h2>Alerts</h2></header>
+    <app-alert-list [alerts]="visibleAlerts()" (acknowledge)="ack($event)" />
+  </article>
+</section>
+<section class="card-grid">
+  @for (server of store.servers(); track server.id) {
+    <app-server-card [server]="server" />
+  }
+</section>
