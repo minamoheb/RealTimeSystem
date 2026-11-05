@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using RealTimeSystem.Application.Common.Dtos;
 
 namespace RealTimeSystem.WebAPI.Tests;
@@ -126,7 +127,7 @@ public sealed class MonitoringApiFactory : WebApplicationFactory<Program>
 
     public MonitoringApiFactory()
     {
-        _sqlServerConnectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={_databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        _sqlServerConnectionString = SqlTestConnection.ForDatabase(_databaseName);
 
         Environment.SetEnvironmentVariable("Database__Provider", "SqlServer");
         Environment.SetEnvironmentVariable("Database__ApplyMigrations", "false");
@@ -154,5 +155,29 @@ public sealed class MonitoringApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("Jwt__Issuer", null);
         Environment.SetEnvironmentVariable("Jwt__Audience", null);
         base.Dispose(disposing);
+    }
+
+    private static class SqlTestConnection
+    {
+        public static string ForDatabase(string databaseName)
+        {
+            var configured = Environment.GetEnvironmentVariable("TEST_SQLSERVER");
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                if (!OperatingSystem.IsWindows())
+                {
+                    throw new InvalidOperationException(
+                        "Set TEST_SQLSERVER to a SQL Server connection string. LocalDB is only available on Windows.");
+                }
+
+                return $"Server=(localdb)\\MSSQLLocalDB;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+            }
+
+            var builder = new SqlConnectionStringBuilder(configured)
+            {
+                InitialCatalog = databaseName
+            };
+            return builder.ConnectionString;
+        }
     }
 }

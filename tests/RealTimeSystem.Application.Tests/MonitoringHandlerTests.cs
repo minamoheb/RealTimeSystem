@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RealTimeSystem.Application;
@@ -24,7 +25,7 @@ public class MonitoringHandlerTests : IDisposable
     public MonitoringHandlerTests()
     {
         var databaseName = $"RealTimeSystemAppTests_{Guid.NewGuid():N}";
-        _connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        _connectionString = SqlTestConnection.ForDatabase(databaseName);
         var options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connectionString).Options;
         _db = new ApplicationDbContext(options);
         _db.Database.EnsureDeleted();
@@ -123,6 +124,30 @@ public class MonitoringHandlerTests : IDisposable
     }
 
     private IUnitOfWork CreateUnitOfWork() => new EfUnitOfWork(_db);
+
+    private static class SqlTestConnection
+    {
+        public static string ForDatabase(string databaseName)
+        {
+            var configured = Environment.GetEnvironmentVariable("TEST_SQLSERVER");
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                if (!OperatingSystem.IsWindows())
+                {
+                    throw new InvalidOperationException(
+                        "Set TEST_SQLSERVER to a SQL Server connection string. LocalDB is only available on Windows.");
+                }
+
+                return $"Server=(localdb)\\MSSQLLocalDB;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+            }
+
+            var builder = new SqlConnectionStringBuilder(configured)
+            {
+                InitialCatalog = databaseName
+            };
+            return builder.ConnectionString;
+        }
+    }
 
     private sealed class StubIssuer : IAuthTokenIssuer
     {
